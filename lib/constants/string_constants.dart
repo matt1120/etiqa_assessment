@@ -10,6 +10,7 @@ class StringConstants {
   static const String estimateEndDate = "Estimate End Date";
   static const String timeLeft = "Time left";
   static const String createNow = "Create Now";
+  static const String save = "Save";
 
   //hint text
   static const String keyInYourToDoTitle =

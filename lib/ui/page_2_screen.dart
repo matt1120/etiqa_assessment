@@ -36,7 +36,11 @@ class _Page2ScreenState extends State<Page2Screen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    log(widget.args!["title"].toString());
+    if (widget.args != null) {
+      todoTitleController.text = widget.args?["title"];
+      startDateController.text = widget.args?["start_date"];
+      endDateController.text = widget.args?["end_date"];
+    }
   }
 
   @override
@@ -47,6 +51,8 @@ class _Page2ScreenState extends State<Page2Screen> {
     todoTitleController.dispose();
   }
 
+  //trigger the calender picker
+  //user are not able to select the date before today
   Future<void> selectDate(TextEditingController controller) async {
     // log(DateTime.now().toString());
     await showDatePicker(
@@ -69,7 +75,7 @@ class _Page2ScreenState extends State<Page2Screen> {
     return Scaffold(
       appBar: const CustomAppBar(title: StringConstants.addNewToDoList),
       body: Container(
-        margin: EdgeInsets.only(top: 40, left: 20, right: 20),
+        margin: const EdgeInsets.only(top: 40, left: 20, right: 20),
         child: Form(
           key: formKey,
           child: Column(
@@ -111,7 +117,6 @@ class _Page2ScreenState extends State<Page2Screen> {
               ),
               TextFormField(
                 readOnly: true,
-                onChanged: (value) {},
                 keyboardType: TextInputType.datetime,
                 controller: startDateController,
                 onTap: () => selectDate(startDateController),
@@ -119,6 +124,7 @@ class _Page2ScreenState extends State<Page2Screen> {
                   if (value == "") {
                     return StringConstants.startDateError;
                   }
+                  return null;
                 },
                 decoration: InputDecoration(
                     suffixIcon: const Icon(Icons.keyboard_arrow_down),
@@ -166,6 +172,8 @@ class _Page2ScreenState extends State<Page2Screen> {
           ),
         ),
       ),
+      //this bottom sheet is use to create a button that stick at the bottom
+
       bottomSheet: Container(
         height: 60,
         width: double.infinity,
@@ -174,6 +182,7 @@ class _Page2ScreenState extends State<Page2Screen> {
           style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
           onPressed: () {
             if (formKey.currentState!.validate()) {
+              if (widget.args != null) {}
               BlocProvider.of<AddNewTodoListCubit>(context).insertIntoDatabase(
                   todoTitleController.text,
                   startDateController.text,
@@ -183,9 +192,12 @@ class _Page2ScreenState extends State<Page2Screen> {
               Navigator.pop(context);
             }
           },
-          child: const Text(
-            StringConstants.createNow,
-            style: TextStyle(fontSize: 16),
+          child: Text(
+            //if the widget is not empty then it will show [Save] else it will show [Create Now]
+            widget.args != null
+                ? StringConstants.save
+                : StringConstants.createNow,
+            style: const TextStyle(fontSize: 16),
           ),
         ),
       ),

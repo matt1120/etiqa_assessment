@@ -4,6 +4,7 @@ import 'package:flutter_maybank_assessment/constants/app_colors.dart';
 import 'package:flutter_maybank_assessment/constants/string_constants.dart';
 import 'package:flutter_maybank_assessment/cubit/read_todo_list/read_todo_list_cubit.dart';
 import 'package:flutter_maybank_assessment/ui/ui.dart';
+import 'package:intl/intl.dart';
 
 import '../utils/custom_app_bar.dart';
 
@@ -44,14 +45,25 @@ class _Page1ScreenState extends State<Page1Screen> {
                   );
                 },
                 itemBuilder: (context, index) {
+                  //parse datetime format and calculate the difference
+                  DateTime startDate =
+                      DateTime.parse(state.todoList[index].startDate);
+                  String formattedStartDate =
+                      DateFormat("dd MMM yyyy").format(startDate);
+                  DateTime endDate =
+                      DateTime.parse(state.todoList[index].endDate);
+                  String formattedEndDate =
+                      DateFormat("dd MMM yyyy").format(endDate);
+
+                  Duration difference = endDate.difference(startDate);
+
+                  int hours = difference.inHours;
+                  int minutes = difference.inMinutes - (hours * 60);
+                  //end date time
+
                   return GestureDetector(
                     onTap: () {
-                      //navigate to second screen with argument
-                      // {
-                      //         "title" : state.todoList[index].todoTitle,
-                      //         "start_date" : state.todoList[index].startDate,
-                      //         "end_date" : state.todoList[index].endDate,
-                      //       }
+                      //navigate to the second page with arguement
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -108,28 +120,29 @@ class _Page1ScreenState extends State<Page1Screen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     buildTimeInformation(
-                                      content: state.todoList[index].startDate
-                                          .toString(),
+                                      content: formattedStartDate,
                                       title: "Start Date",
                                     ),
                                     buildTimeInformation(
-                                      content: state.todoList[index].endDate
-                                          .toString(),
+                                      content: formattedEndDate,
                                       title: "End Date",
                                     ),
-                                    const buildTimeInformation(
+                                    buildTimeInformation(
                                         title: "Time Left",
-                                        content: "23 hrs 22 min")
+                                        content: "$hours hrs $minutes min")
                                   ],
                                 ),
                               ],
                             ),
                           ),
                           const Spacer(),
+                          //this is to build the bottom part:
+                          //1. status
+                          //2. tick if complete part
                           Container(
                             height: 35,
                             width: double.infinity,
-                            padding: EdgeInsets.only(left: 20, right: 10),
+                            padding: const EdgeInsets.only(left: 20, right: 10),
                             decoration: const BoxDecoration(
                               color: Color(0xFFe7e3cf),
                               borderRadius: BorderRadius.only(
@@ -138,14 +151,26 @@ class _Page1ScreenState extends State<Page1Screen> {
                             ),
                             child: Row(
                               children: [
-                                const Text(StringConstants.status),
-                                SizedBox(
+                                const Text(
+                                  StringConstants.status,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.greyColor2),
+                                ),
+                                const SizedBox(
                                   width: 10,
                                 ),
-                                Text("Incompleted"),
-                                Spacer(),
-                                Text(StringConstants.tickIfComplete),
-                                SizedBox(
+                                Text(
+                                  state.todoList[index].status,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                const Spacer(),
+                                const Text(
+                                  StringConstants.tickIfComplete,
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(
                                   width: 5,
                                 ),
                                 Icon(
@@ -193,7 +218,22 @@ class buildTimeInformation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [Text(title), Text(content)],
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.greyColor2),
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+        Text(
+          content,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+      ],
     );
   }
 }
