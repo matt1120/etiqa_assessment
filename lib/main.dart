@@ -22,6 +22,14 @@ class MyApp extends StatelessWidget {
             create: (context) => AddNewTodoListCubit()),
         BlocProvider<ReadTodoListCubit>(
             create: (context) => ReadTodoListCubit()),
+        BlocProvider<UpdateTodoListCubit>(
+            create: (context) => UpdateTodoListCubit()),
+        BlocProvider<UpdateStatusCubit>(
+          create: (context) => UpdateStatusCubit(),
+        ),
+        BlocProvider<ScrollControllerCubit>(
+          create: (context) => ScrollControllerCubit(),
+        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

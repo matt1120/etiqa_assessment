@@ -14,8 +14,6 @@ class ReadTodoListCubit extends Cubit<ReadTodoListState> {
   Future<void> readTodoList() async {
     try {
       final result = await TodoDB.instance.readData();
-      // var jsonDecodedData = jsonDecode(result);
-      // log(jsonDecodedData.toString());
       List<TodoList> todos = (json.decode(result) as List)
           .map((item) => TodoList.fromJson(item))
           .toList();

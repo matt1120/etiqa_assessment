@@ -54,6 +54,7 @@ class TodoDB {
       ''');
   }
 
+  //insert data into database
   Future<void> insertData(
       {required todoTitle, required startDate, required endDate}) async {
     final db = await instance.database;
@@ -62,9 +63,11 @@ class TodoDB {
         'INSERT INTO $table($columnTodoTitle, $columnStartDate, $columnEndDate, $columnStatus) VALUES("$todoTitle", "$startDate", "$endDate", "Incomplete")');
   }
 
+  //read all the data from the database
+  //query the data from descending in order to set the newest data on the top
   readData() async {
     final db = await instance.database;
-    String sqlQuery = "SELECT * FROM $table";
+    String sqlQuery = "SELECT * FROM $table ORDER BY $columnId DESC";
     var data = await db.rawQuery(sqlQuery);
     if (data.isNotEmpty) {
       var jsonEncodedData = jsonEncode(data);
@@ -73,6 +76,33 @@ class TodoDB {
     return [];
   }
 
+  //update data
+  update(String title, String startDate, String endDate, int id) async {
+    try {
+      final db = await instance.database;
+      String sqlQuery =
+          'UPDATE $table SET $columnTodoTitle = "$title", $columnStartDate = "$startDate", $columnEndDate = "$endDate" WHERE $columnId = $id';
+      await db.rawQuery(sqlQuery);
+      return "success";
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  //update status if completed
+  updateStatus(String status, int id) async {
+    try {
+      final db = await instance.database;
+      String sqlQuery =
+          'UPDATE $table SET $columnStatus = "$status" WHERE $columnId = $id';
+      await db.rawQuery(sqlQuery);
+      return "success";
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  //delete all the data from the database
   delete() async {
     final db = await instance.database;
     String sqlQuery = "DELETE from $table";

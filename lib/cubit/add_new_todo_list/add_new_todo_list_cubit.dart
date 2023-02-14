@@ -10,7 +10,6 @@ class AddNewTodoListCubit extends Cubit<AddNewTodoListState> {
   AddNewTodoListCubit() : super(AddNewTodoListInitial());
 
   void insertIntoDatabase(String todoTitle, String startDate, String endDate) {
-    log(startDate + endDate);
     TodoDB.instance.insertData(
       todoTitle: todoTitle,
       startDate: startDate,

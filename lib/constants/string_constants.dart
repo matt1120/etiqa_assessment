@@ -11,6 +11,11 @@ class StringConstants {
   static const String timeLeft = "Time left";
   static const String createNow = "Create Now";
   static const String save = "Save";
+  static const String confirmationMessage =
+      "Are you sure you want to confirm completion?";
+  static const String yes = "Yes";
+  static const String cancel = "Cancel";
+  static const String confirmation = "Confirmation";
 
   //hint text
   static const String keyInYourToDoTitle =

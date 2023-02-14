@@ -1,13 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_maybank_assessment/constants/app_colors.dart';
 import 'package:flutter_maybank_assessment/constants/string_constants.dart';
 import 'package:flutter_maybank_assessment/cubit/add_new_todo_list/add_new_todo_list_cubit.dart';
+import 'package:flutter_maybank_assessment/cubit/cubit.dart';
 import 'package:flutter_maybank_assessment/cubit/read_todo_list/read_todo_list_cubit.dart';
-import 'package:flutter_maybank_assessment/db/tododb.dart';
 import 'package:flutter_maybank_assessment/utils/custom_app_bar.dart';
 import 'package:intl/intl.dart';
 
@@ -54,7 +53,6 @@ class _Page2ScreenState extends State<Page2Screen> {
   //trigger the calender picker
   //user are not able to select the date before today
   Future<void> selectDate(TextEditingController controller) async {
-    // log(DateTime.now().toString());
     await showDatePicker(
       context: context,
       initialDate: controller.text.isNotEmpty
@@ -65,7 +63,6 @@ class _Page2ScreenState extends State<Page2Screen> {
     ).then((selectedDate) {
       if (selectedDate != null) {
         controller.text = DateFormat('yyyy-MM-dd').format(selectedDate);
-        // controller.text = selectedDate.toString();
       }
     });
   }
@@ -173,7 +170,6 @@ class _Page2ScreenState extends State<Page2Screen> {
         ),
       ),
       //this bottom sheet is use to create a button that stick at the bottom
-
       bottomSheet: Container(
         height: 60,
         width: double.infinity,
@@ -182,11 +178,17 @@ class _Page2ScreenState extends State<Page2Screen> {
           style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
           onPressed: () {
             if (formKey.currentState!.validate()) {
-              if (widget.args != null) {}
-              BlocProvider.of<AddNewTodoListCubit>(context).insertIntoDatabase(
-                  todoTitleController.text,
-                  startDateController.text,
-                  endDateController.text);
+              if (widget.args != null) {
+                BlocProvider.of<UpdateTodoListCubit>(context).updateToList(
+                    widget.args?["id"],
+                    todoTitleController.text,
+                    startDateController.text,
+                    endDateController.text);
+              } else {
+                BlocProvider.of<AddNewTodoListCubit>(context)
+                    .insertIntoDatabase(todoTitleController.text,
+                        startDateController.text, endDateController.text);
+              }
 
               BlocProvider.of<ReadTodoListCubit>(context).readTodoList();
               Navigator.pop(context);

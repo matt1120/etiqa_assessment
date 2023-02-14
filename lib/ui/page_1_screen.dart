@@ -1,8 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_maybank_assessment/constants/app_colors.dart';
 import 'package:flutter_maybank_assessment/constants/string_constants.dart';
+import 'package:flutter_maybank_assessment/cubit/cubit.dart';
 import 'package:flutter_maybank_assessment/cubit/read_todo_list/read_todo_list_cubit.dart';
+import 'package:flutter_maybank_assessment/db/tododb.dart';
 import 'package:flutter_maybank_assessment/ui/ui.dart';
 import 'package:intl/intl.dart';
 
@@ -18,11 +23,30 @@ class Page1Screen extends StatefulWidget {
 }
 
 class _Page1ScreenState extends State<Page1Screen> {
+  ScrollController hideButtonController = ScrollController();
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     BlocProvider.of<ReadTodoListCubit>(context).readTodoList();
+    //initialize bloc
+
+    hideButtonController.addListener(() {
+      if (hideButtonController.position.userScrollDirection ==
+          ScrollDirection.reverse) {
+        if (BlocProvider.of<ScrollControllerCubit>(context).state == true) {
+          BlocProvider.of<ScrollControllerCubit>(context).isVisible(false);
+        }
+      } else {
+        if (hideButtonController.position.userScrollDirection ==
+            ScrollDirection.forward) {
+          if (BlocProvider.of<ScrollControllerCubit>(context).state == false) {
+            BlocProvider.of<ScrollControllerCubit>(context).isVisible(true);
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -38,6 +62,7 @@ class _Page1ScreenState extends State<Page1Screen> {
           if (state is ReadTodoListSuccess) {
             //Create a to-do list if successfully obtain data from the database.
             return ListView.separated(
+                controller: hideButtonController,
                 itemCount: state.todoList.length,
                 separatorBuilder: (context, index) {
                   return const SizedBox(
@@ -62,21 +87,26 @@ class _Page1ScreenState extends State<Page1Screen> {
                   //end date time
 
                   return GestureDetector(
-                    onTap: () {
-                      //navigate to the second page with arguement
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Page2Screen(
-                                  args: {
-                                    "title": state.todoList[index].todoTitle,
-                                    "start_date":
-                                        state.todoList[index].startDate,
-                                    "end_date": state.todoList[index].endDate,
-                                  },
-                                )),
-                      );
-                    },
+                    onTap: state.todoList[index].status == "Incomplete"
+                        ? () {
+                            //navigate to the second page with arguement
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Page2Screen(
+                                        args: {
+                                          "title":
+                                              state.todoList[index].todoTitle,
+                                          "start_date":
+                                              state.todoList[index].startDate,
+                                          "end_date":
+                                              state.todoList[index].endDate,
+                                          "id": state.todoList[index].id
+                                        },
+                                      )),
+                            );
+                          }
+                        : null,
                     child: Container(
                       margin:
                           const EdgeInsets.only(left: 20, right: 20, top: 20),
@@ -166,17 +196,30 @@ class _Page1ScreenState extends State<Page1Screen> {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 const Spacer(),
-                                const Text(
-                                  StringConstants.tickIfComplete,
-                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                GestureDetector(
+                                  onTap: () =>
+                                      showAlerDialog(state.todoList[index].id),
+                                  child: state.todoList[index].status ==
+                                          "Incomplete"
+                                      ? Row(
+                                          children: const [
+                                            Text(
+                                              StringConstants.tickIfComplete,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600),
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Icon(
+                                              Icons
+                                                  .check_box_outline_blank_sharp,
+                                              size: 15,
+                                            ),
+                                          ],
+                                        )
+                                      : Container(),
                                 ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Icon(
-                                  Icons.check_box_outline_blank_sharp,
-                                  size: 15,
-                                )
                               ],
                             ),
                           )
@@ -187,18 +230,61 @@ class _Page1ScreenState extends State<Page1Screen> {
                 });
           }
 
-          return Container();
+          return const Center(
+            child: Text(
+              "No data available now",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          );
         },
       ),
       //build the center floating button
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, Page2Screen.routeName);
+      floatingActionButton: BlocBuilder<ScrollControllerCubit, bool>(
+        builder: (context, state) {
+          return AnimatedOpacity(
+            opacity: state ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 700),
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.pushNamed(context, Page2Screen.routeName);
+              },
+              backgroundColor: AppColors.buttonColor,
+              child: const Icon(Icons.add),
+            ),
+          );
         },
-        backgroundColor: AppColors.buttonColor,
-        child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  //create a alerdialog to notify the users
+  Future<void> showAlerDialog(int id) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(StringConstants.confirmation),
+          content: const Text(StringConstants.confirmationMessage),
+          actions: <Widget>[
+            TextButton(
+              child: const Text(StringConstants.cancel),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(StringConstants.yes),
+              onPressed: () {
+                BlocProvider.of<UpdateStatusCubit>(context).updateStatus(id);
+                BlocProvider.of<ReadTodoListCubit>(context).readTodoList();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
