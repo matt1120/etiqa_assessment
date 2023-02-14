@@ -9,6 +9,6 @@ class AddNewTodoListCubit extends Cubit<AddNewTodoListState> {
 
   void insertIntoDatabase(String todoTitle, String startDate, String endDate) {
     TodoDB.instance.insertData(
-        todoTitle: todoTitle, startDate: startDate, endDate: endDate);
+        todoTitle: todoTitle, startDate: startDate, endDate: endDate, );
   }
 }

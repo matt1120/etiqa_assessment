@@ -6,14 +6,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_maybank_assessment/constants/app_colors.dart';
 import 'package:flutter_maybank_assessment/constants/string_constants.dart';
 import 'package:flutter_maybank_assessment/cubit/add_new_todo_list/add_new_todo_list_cubit.dart';
+import 'package:flutter_maybank_assessment/cubit/read_todo_list/read_todo_list_cubit.dart';
 import 'package:flutter_maybank_assessment/db/tododb.dart';
 import 'package:flutter_maybank_assessment/utils/custom_app_bar.dart';
 import 'package:intl/intl.dart';
 
 class Page2Screen extends StatefulWidget {
-  Page2Screen({super.key});
+  const Page2Screen({super.key, this.args});
 
   static const routeName = "page-2-screen";
+
+  final Map? args;
 
   @override
   State<Page2Screen> createState() => _Page2ScreenState();
@@ -28,6 +31,13 @@ class _Page2ScreenState extends State<Page2Screen> {
   final endDateController = TextEditingController();
   final todoTitleController = TextEditingController();
   static final formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    log(widget.args!["title"].toString());
+  }
 
   @override
   void dispose() {
@@ -49,6 +59,7 @@ class _Page2ScreenState extends State<Page2Screen> {
     ).then((selectedDate) {
       if (selectedDate != null) {
         controller.text = DateFormat('yyyy-MM-dd').format(selectedDate);
+        // controller.text = selectedDate.toString();
       }
     });
   }
@@ -167,6 +178,9 @@ class _Page2ScreenState extends State<Page2Screen> {
                   todoTitleController.text,
                   startDateController.text,
                   endDateController.text);
+
+              BlocProvider.of<ReadTodoListCubit>(context).readTodoList();
+              Navigator.pop(context);
             }
           },
           child: const Text(

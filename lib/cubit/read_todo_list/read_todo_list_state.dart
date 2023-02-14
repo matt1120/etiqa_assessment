@@ -7,7 +7,7 @@ abstract class ReadTodoListState {}
 class ReadTodoListInitial extends ReadTodoListState {}
 
 class ReadTodoListSuccess extends ReadTodoListState {
-  final TodoList todoList;
+  final List todoList;
   ReadTodoListSuccess({
     required this.todoList,
   });

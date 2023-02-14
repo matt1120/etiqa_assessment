@@ -18,6 +18,7 @@ class TodoDB {
   static const String columnTodoTitle = "todo_title";
   static const String columnStartDate = "start_date";
   static const String columnEndDate = "end_date";
+  static const String columnStatus = "status";
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -47,7 +48,8 @@ class TodoDB {
         $columnId $idType, 
         $columnTodoTitle $textType,
         $columnStartDate $textType,
-        $columnEndDate $textType
+        $columnEndDate $textType,
+        $columnStatus $textType
         )
       ''');
   }
@@ -55,18 +57,26 @@ class TodoDB {
   Future<void> insertData(
       {required todoTitle, required startDate, required endDate}) async {
     final db = await instance.database;
+    // await db.rawQuery("ALTER TABLE $table ADD $columnStatus TEXT NOT NULL;");
     await db.rawInsert(
-        'INSERT INTO $table($columnTodoTitle, $columnStartDate, $columnEndDate) VALUES("$todoTitle", "$startDate", "$endDate")');
+        'INSERT INTO $table($columnTodoTitle, $columnStartDate, $columnEndDate, $columnStatus) VALUES("$todoTitle", "$startDate", "$endDate", "Incomplete")');
   }
 
   readData() async {
     final db = await instance.database;
-    String sqlQeury = "SELECT * FROM $table";
-    var data = await db.rawQuery(sqlQeury);
+    String sqlQuery = "SELECT * FROM $table";
+    var data = await db.rawQuery(sqlQuery);
     if (data.isNotEmpty) {
-      return jsonEncode(data);
+      var jsonEncodedData = jsonEncode(data);
+      return jsonEncodedData;
     }
     return [];
+  }
+
+  delete() async {
+    final db = await instance.database;
+    String sqlQuery = "DELETE from $table";
+    await db.rawQuery(sqlQuery);
   }
 
   Future close() async {

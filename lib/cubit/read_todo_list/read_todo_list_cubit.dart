@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
@@ -10,12 +11,18 @@ part 'read_todo_list_state.dart';
 class ReadTodoListCubit extends Cubit<ReadTodoListState> {
   ReadTodoListCubit() : super(ReadTodoListInitial());
 
-  void readTodoList() {
+  Future<void> readTodoList() async {
     try {
-      final result = TodoDB.instance.readData();
-      emit(ReadTodoListSuccess(todoList: TodoList.fromJson(result)));
+      final result = await TodoDB.instance.readData();
+      // var jsonDecodedData = jsonDecode(result);
+      // log(jsonDecodedData.toString());
+      List<TodoList> todos = (json.decode(result) as List)
+          .map((item) => TodoList.fromJson(item))
+          .toList();
+      emit(ReadTodoListSuccess(todoList: todos));
     } catch (e) {
       emit(ReadTodoListFailure());
+      log(e.toString());
     }
   }
 }
