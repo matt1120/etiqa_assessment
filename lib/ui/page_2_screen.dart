@@ -42,14 +42,6 @@ class _Page2ScreenState extends State<Page2Screen> {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    startDateController.dispose();
-    endDateController.dispose();
-    todoTitleController.dispose();
-  }
-
   //trigger the calender picker
   //user are not able to select the date before today
   Future<void> selectDate(TextEditingController controller) async {
@@ -68,8 +60,17 @@ class _Page2ScreenState extends State<Page2Screen> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    startDateController.dispose();
+    endDateController.dispose();
+    todoTitleController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: const CustomAppBar(title: StringConstants.addNewToDoList),
       body: Container(
         margin: const EdgeInsets.only(top: 40, left: 20, right: 20),
@@ -145,6 +146,7 @@ class _Page2ScreenState extends State<Page2Screen> {
                 keyboardType: TextInputType.datetime,
                 onTap: () => selectDate(endDateController),
                 controller: endDateController,
+                readOnly: true,
                 validator: (value) {
                   if (value == "") {
                     return StringConstants.endDateError;

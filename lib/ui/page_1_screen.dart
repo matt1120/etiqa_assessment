@@ -30,8 +30,8 @@ class _Page1ScreenState extends State<Page1Screen> {
     // TODO: implement initState
     super.initState();
     BlocProvider.of<ReadTodoListCubit>(context).readTodoList();
-    //initialize bloc
 
+    //add a controller to listen of the scolling
     hideButtonController.addListener(() {
       if (hideButtonController.position.userScrollDirection ==
           ScrollDirection.reverse) {
@@ -86,47 +86,47 @@ class _Page1ScreenState extends State<Page1Screen> {
                   int minutes = difference.inMinutes - (hours * 60);
                   //end date time
 
-                  return GestureDetector(
-                    onTap: state.todoList[index].status == "Incomplete"
-                        ? () {
-                            //navigate to the second page with arguement
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Page2Screen(
-                                        args: {
-                                          "title":
-                                              state.todoList[index].todoTitle,
-                                          "start_date":
-                                              state.todoList[index].startDate,
-                                          "end_date":
-                                              state.todoList[index].endDate,
-                                          "id": state.todoList[index].id
-                                        },
-                                      )),
-                            );
-                          }
-                        : null,
-                    child: Container(
-                      margin:
-                          const EdgeInsets.only(left: 20, right: 20, top: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.4),
-                            spreadRadius: 3,
-                            blurRadius: 8,
-                            offset: const Offset(
-                              0,
-                              3,
-                            ),
+                  //container for the list widget
+                  return Container(
+                    margin: const EdgeInsets.only(left: 20, right: 20, top: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.4),
+                          spreadRadius: 3,
+                          blurRadius: 8,
+                          offset: const Offset(
+                            0,
+                            3,
                           ),
-                        ],
-                      ),
-                      height: 150,
-                      width: double.infinity,
+                        ),
+                      ],
+                    ),
+                    height: 150,
+                    width: double.infinity,
+                    child: GestureDetector(
+                      onTap: state.todoList[index].status == "Incomplete"
+                          ? () {
+                              //navigate to the second page with arguement
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Page2Screen(
+                                          args: {
+                                            "title":
+                                                state.todoList[index].todoTitle,
+                                            "start_date":
+                                                state.todoList[index].startDate,
+                                            "end_date":
+                                                state.todoList[index].endDate,
+                                            "id": state.todoList[index].id
+                                          },
+                                        )),
+                              );
+                            }
+                          : null,
                       child: Column(
                         children: [
                           Padding(
